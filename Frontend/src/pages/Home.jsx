@@ -1,9 +1,13 @@
+
+import ChatArea from '@/components/Home/ChatArea'
+import Sidebar from '@/components/Home/Sidebar'
 import React from 'react'
 
 const Home = () => {
   return (
-    <div>
-      welcome to my app
+    <div className="flex">
+       <Sidebar />
+       <ChatArea /> 
     </div>
   )
 }
