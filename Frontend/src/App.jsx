@@ -1,14 +1,29 @@
 import { Route ,Routes ,Navigate } from "react-router-dom"
 import Signup from "./pages/signup"
 import Login from "./pages/login"
+import { useAuthStore } from "./stores/useAuthStore"
+import { useEffect } from "react"
+import Home from "./pages/Home"
+import { Loader2 } from "lucide-react"
+import { Toaster } from "sonner"
+
 const App = () => {
+  const {user,checkAuth,ischeckingAuth}=useAuthStore();
+
+  useEffect(()=>{
+    checkAuth();
+  },[checkAuth])
+  if(ischeckingAuth) {
+    return <div><Loader2 className="animate-spin" /></div>;
+  }
   return (
   <div>
     <Routes>
-      <Route path="/signup" element={<Signup />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/" element={<Navigate to="/login" />} />
+      <Route path="/signup" element={!user ? <Signup /> : <Navigate to="/" />} />
+      <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
+      <Route path="/" element={user ? <Home /> : <Navigate to="/login" />} />
     </Routes>
+    <Toaster position="top-center"/>
   </div>
   )
 }

@@ -5,8 +5,10 @@ const connectDB=require("../config/db")
 const cors=require("cors")
 const authRouter=require("../routes/auth.route")
 const app=express()
+const cookieParser=require("cookie-parser")
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
+app.use(cookieParser())
 app.use(cors({
 origin:"http://localhost:5174",
 credentials:true
