@@ -5,7 +5,7 @@ import React from 'react'
 
 const Home = () => {
   return (
-    <div className="flex">
+    <div className="flex h-screen">
        <Sidebar />
        <ChatArea /> 
     </div>
