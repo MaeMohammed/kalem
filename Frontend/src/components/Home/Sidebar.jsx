@@ -28,7 +28,7 @@ const Sidebar = () => {
             resolver: zodResolver(channelSchema)
         })
     const { user } = useAuthStore();
-    const { channels, createChannel,getChannels } = useChannelStore();
+    const { channels, createChannel,getChannels ,setSelectedChannel,selectedChannel} = useChannelStore();
     useEffect(()=>{
         getChannels()
     },[getChannels])
@@ -83,7 +83,8 @@ const Sidebar = () => {
                     </Dialog>
                 </div>
                     {channels.map((channel) => (
-                        <div key={channel._id}>
+                        <div key={channel._id} onClick={() => setSelectedChannel(channel)}
+                        className={`${selectedChannel?._id === channel._id ? "bg-base-300" : ""} `}>
                             <p>{channel.name}</p>
                         </div>
                     ))}

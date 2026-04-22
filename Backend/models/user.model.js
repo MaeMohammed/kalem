@@ -18,6 +18,14 @@ const userSchema=new mongoose.Schema({
         required:[true,"please enter a password"],
         trim:true,
         minlength:[8,"password must atleast be 8 characters long"]
+    },
+    profileIMG:{
+        type:String,
+        optional:true
+    },
+    bio:{
+        type:String,
+        optional:true
     }
 })
 userSchema.pre("save",async function(){

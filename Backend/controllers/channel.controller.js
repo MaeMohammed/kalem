@@ -18,5 +18,18 @@ const createChannel =asyncHandler(async(req,res)=>{
     })
    return res.status(201).json({success:true,data:channel})
 })
-
-module.exports={getChannels,createChannel}
+const getChannelMessages=asyncHandler(async(req,res)=>{
+    const channel=req.params.channelId;
+    const messages= await ChannelMsg.find({channelId:channel}).populate("sender","username")
+    return res.status(200).json({success:true,data:messages})
+})
+const sendChannelMessage=asyncHandler(async(req,res)=>{
+    const channel=req.params.channelId;
+    const message= await ChannelMsg.create({
+        channelId:channel,
+        sender:req.user._id,
+        message :req.body.message
+    })
+    return res.status(201).json({success:true,data:message})
+})
+module.exports={getChannels,createChannel,getChannelMessages,sendChannelMessage}

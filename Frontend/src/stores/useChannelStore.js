@@ -5,6 +5,8 @@ import { toast } from "sonner";
 
 export const useChannelStore = create((set)=>({
   channels: [],
+  selectedChannel:null,
+  messages: [],
     createChannel: async(data)=>{
         try {
             const res= await axiosInstance.post("/channels", data);
@@ -27,5 +29,28 @@ export const useChannelStore = create((set)=>({
             const message = errs ? errs[0].msg : "an error occured while fetching channels"
             toast.error( message)
         }
-    }
+    },
+    setSelectedChannel:(channel)=>{
+        set({selectedChannel: channel})
+    },
+    getChannelMessages:async(channelId)=>{
+        try {
+            const res= await axiosInstance.get(`/channels/${channelId}/messages`);
+            console.log(res.data)
+            set( {messages: res.data.data})
+        }   catch (error) {
+            const errs= error.response?.data?.errors
+            const message = errs ? errs[0].msg : "an error occured while fetching messages"
+            toast.error( message)
+
+        }  },
+    sendChannelMessage:async(channelId, data)=>{
+        try {
+            const res= await axiosInstance.post(`/channels/${channelId}/messages`, data);
+            await set((state)=>({messages: [...state.messages, res.data.data]}))
+            return res.data.data
+        }   catch (error) {
+            const errs= error.response?.data?.errors
+            const message = errs ? errs[0].msg : "an error occured while sending message"
+            toast.error( message)}}
 }))
