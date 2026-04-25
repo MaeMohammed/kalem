@@ -5,14 +5,19 @@ import { Send } from 'lucide-react'
 import { useChannelStore } from '@/stores/useChannelStore'
 import { set } from 'zod'
 import { toast } from 'sonner'
+import { useMessageStore } from '@/stores/useMessageStore'
 
 const ChatInput = () => {
     const{sendChannelMessage,selectedChannel}=useChannelStore()
     const [message, setMessage] = useState("")
+    const {selectedUser,sendMessage}=useMessageStore()
    const handlemsgsubmit=async()=>{
         if(!message.trim()) return;
-        if(!selectedChannel) return toast.error("no channel selected");
-        await sendChannelMessage(selectedChannel._id,{message})
+       
+        if(selectedChannel) {await sendChannelMessage(selectedChannel._id,{message})}
+        else if(selectedUser) {
+            await sendMessage(selectedUser._id,message)
+        }
         setMessage("")
     }
   return (

@@ -3,29 +3,38 @@ import React, { useEffect, useRef } from 'react'
 import { ScrollArea } from '../ui/scroll-area'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { useAuthStore } from '@/stores/useAuthStore'
+import { useMessageStore } from '@/stores/useMessageStore'
 
 const ChatList = () => {
-    const {getChannelMessages,messages,selectedChannel}=useChannelStore()
+    const {messages:channelmsgs,getChannelMessages,selectedChannel}=useChannelStore()
+    const {selectedUser,messages:Usermsgs,getMessages,clearMessages}=useMessageStore()
     const {user}=useAuthStore()
     const bottomRef=useRef(null);
+    const messages=selectedChannel ? channelmsgs : Usermsgs
     useEffect(()=>{
-        if(!selectedChannel) return;
-        getChannelMessages(selectedChannel._id)
-    }, [selectedChannel,getChannelMessages])
+        if(selectedChannel){
+            getChannelMessages(selectedChannel._id)
+        }
+        else if(selectedUser){
+            clearMessages()
+            getMessages(selectedUser._id)
+        }
+      
+    }, [selectedChannel,selectedUser])
     useEffect(()=>{
         if(bottomRef.current){
             bottomRef.current.scrollIntoView({behavior:"smooth"})
         }
-    },[ messages])
+    },[ channelmsgs,Usermsgs])
   return (
     <div className="flex-1 p-4 overflow-y-auto">
       <ScrollArea className="h-full">
         {messages.map((msg) => (
-          <div key={msg._id} className={`chat ${user?._id === msg.sender._id ? "chat-end" : "chat-start"} `}>
+          <div key={msg._id} className={`chat ${user?._id === msg.sender._id ? "chat-start" : "chat-end"} `}>
             <div className='chat-image'>
             <Avatar>
             <AvatarImage src={msg.sender.avatarUrl} />
-            <AvatarFallback>{msg.sender.username?.[0].toUpperCase()}</AvatarFallback>
+            <AvatarFallback className="text-white text-2xl">{msg.sender.username?.[0].toUpperCase()}</AvatarFallback>
             </Avatar>
             </div>
             <div className='chat-header'>

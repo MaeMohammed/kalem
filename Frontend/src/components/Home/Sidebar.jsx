@@ -13,6 +13,8 @@ import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog'
 import { Button } from '../ui/button'
+import { useUserStore } from '@/stores/useUserStore'
+import { useMessageStore } from '@/stores/useMessageStore'
 
 
 
@@ -29,9 +31,13 @@ const Sidebar = () => {
         })
     const { user } = useAuthStore();
     const { channels, createChannel,getChannels ,setSelectedChannel,selectedChannel} = useChannelStore();
+    const {selectedUser,setSelectedUser}=useMessageStore();
+    const {getUsers,users}=useUserStore();
+
     useEffect(()=>{
         getChannels()
-    },[getChannels])
+        getUsers()
+    },[getChannels,getUsers])
     return (
         <div className='h-full w-72 border-r border-base-300 flex flex-col '>
             <div className='border-b border-base-300 p-4'>
@@ -83,7 +89,8 @@ const Sidebar = () => {
                     </Dialog>
                 </div>
                     {channels.map((channel) => (
-                        <div key={channel._id} onClick={() => setSelectedChannel(channel)}
+                        <div key={channel._id} onClick={() =>{ setSelectedChannel(channel)
+                             setSelectedUser(null)}}
                         className={`${selectedChannel?._id === channel._id ? "bg-base-300" : ""} `}>
                             <p>{channel.name}</p>
                         </div>
@@ -92,6 +99,16 @@ const Sidebar = () => {
                 <Separator />
                 <div>
                     <h3>Available users </h3>
+                    {
+                        users && users.map((u) => (
+                            <div key={u._id} onClick={() =>{
+                                 setSelectedUser(u) 
+                                 setSelectedChannel(null)}}
+                                className={`${selectedUser?._id === u._id ? "bg-base-300" : ""} `}>
+                                <p>{u.username}</p>
+                            </div>
+                        ))
+                    }
                 </div>
             </ScrollArea>
             <div className='border-t border-base-300 flex items-center gap-2 p-4'>
