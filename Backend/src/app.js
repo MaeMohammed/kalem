@@ -1,5 +1,6 @@
 const express=require("express")
 const dotenv=require("dotenv")
+dotenv.config()
 const mongoose=require("mongoose")
 const connectDB=require("../config/db")
 const cors=require("cors")
@@ -16,7 +17,7 @@ app.use(cors({
 origin:"http://localhost:5173",
 credentials:true
 }))
-dotenv.config()
+
 connectDB()
 
 app.use("/api/auth",authRouter)

@@ -15,12 +15,12 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { Button } from '../ui/button'
 import { useUserStore } from '@/stores/useUserStore'
 import { useMessageStore } from '@/stores/useMessageStore'
-
+import { useNavigate } from 'react-router-dom'
 
 
 
 const Sidebar = () => {
-
+  const navigate=useNavigate()
     const {
             register,
             handleSubmit,
@@ -111,7 +111,7 @@ const Sidebar = () => {
                     }
                 </div>
             </ScrollArea>
-            <div className='border-t border-base-300 flex items-center gap-2 p-4'>
+            <div className='border-t border-base-300 flex items-center gap-2 p-4' onClick={()=>navigate("/profile")}>
                 <Avatar >
                     <AvatarImage src="" />
                     <AvatarFallback>{user?.username?.[0]?.toUpperCase()}</AvatarFallback>

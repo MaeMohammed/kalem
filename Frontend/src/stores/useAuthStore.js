@@ -9,6 +9,7 @@ export const useAuthStore = create((set) => ({
     isLoggedin: false,
     isLoading: false,
     ischeckingAuth: true,
+    setUser:(user)=>{set({user})},
     signup:async(data)=>{
         try {
             set({isLoading: true})
