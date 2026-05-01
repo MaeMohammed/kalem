@@ -104,7 +104,11 @@ const Sidebar = () => {
                             <div key={u._id} onClick={() =>{
                                  setSelectedUser(u) 
                                  setSelectedChannel(null)}}
-                                className={`${selectedUser?._id === u._id ? "bg-base-300" : ""} `}>
+                                className={`${selectedUser?._id === u._id ? "bg-base-300 flex  gap-2 my-2 mx-auto px-4" : "flex gap-2 my-2 mx-auto px-4"} `}>
+                                <Avatar>
+                                  <AvatarImage src={u.profileIMG}/>
+                                  <AvatarFallback>{u?.username?.[0].toUpperCase()}</AvatarFallback>
+                                </Avatar>    
                                 <p>{u.username}</p>
                             </div>
                         ))
@@ -113,7 +117,7 @@ const Sidebar = () => {
             </ScrollArea>
             <div className='border-t border-base-300 flex items-center gap-2 p-4' onClick={()=>navigate("/profile")}>
                 <Avatar >
-                    <AvatarImage src="" />
+                    <AvatarImage src={user.profileIMG} />
                     <AvatarFallback>{user?.username?.[0]?.toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div>

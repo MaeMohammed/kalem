@@ -7,7 +7,7 @@ import { useMessageStore } from '@/stores/useMessageStore'
 
 const ChatList = () => {
     const {messages:channelmsgs,getChannelMessages,selectedChannel}=useChannelStore()
-    const {selectedUser,messages:Usermsgs,getMessages,clearMessages}=useMessageStore()
+    const {selectedUser,messages:Usermsgs,getMessages,clearMessages,subscribeToMessages,unsubscribeFromMessages}=useMessageStore()
     const {user}=useAuthStore()
     const bottomRef=useRef(null);
     const messages=selectedChannel ? channelmsgs : Usermsgs
@@ -17,8 +17,10 @@ const ChatList = () => {
         }
         else if(selectedUser){
             clearMessages()
-            getMessages(selectedUser._id)
+            getMessages(selectedUser._id);
+            subscribeToMessages()
         }
+      return ()=>unsubscribeFromMessages()
       
     }, [selectedChannel,selectedUser])
     useEffect(()=>{
@@ -26,19 +28,25 @@ const ChatList = () => {
             bottomRef.current.scrollIntoView({behavior:"smooth"})
         }
     },[ channelmsgs,Usermsgs])
+    
   return (
     <div className="flex-1 p-4 overflow-y-auto">
       <ScrollArea className="h-full">
-        {messages.map((msg) => (
-          <div key={msg._id} className={`chat ${user?._id === msg.sender._id ? "chat-start" : "chat-end"} `}>
+        {messages.map((msg) => {
+          const senderId= typeof msg.sender === "object" ? msg.sender._id :msg.sender
+          const myMsg=user?._id === senderId?.toString()
+          const senderObj = typeof msg.sender ==="object" ? msg.sender: (myMsg? user : selectedUser)
+          
+          return(
+          <div key={msg._id} className={`chat ${user?._id === senderId ? "chat-end" : "chat-start"} `}>
             <div className='chat-image'>
             <Avatar>
-            <AvatarImage src={msg.sender.avatarUrl} />
-            <AvatarFallback className="text-white text-2xl">{msg.sender.username?.[0].toUpperCase()}</AvatarFallback>
+            <AvatarImage src={senderObj?.profileIMG} />
+            <AvatarFallback className="text-white text-2xl">{senderObj?.username?.[0].toUpperCase()}</AvatarFallback>
             </Avatar>
             </div>
             <div className='chat-header'>
-              <p>{msg.sender.username}</p>
+              <p>{senderObj?.username}</p>
             </div>
             <p className='chat-bubble'>{msg.message}</p>
             <div className='chat-footer'>
@@ -47,7 +55,7 @@ const ChatList = () => {
              </time>
             </div>
           </div>
-        ))}
+        )})}
         <div ref={bottomRef} />
       </ScrollArea>
     </div>

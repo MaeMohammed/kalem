@@ -50,8 +50,8 @@ const Profile = () => {
                 </label>
             </div>
             <h1>{user?.username}</h1>
-            <div className='flex flex-col'>
-              <p>{user?.bio}</p>
+            <div className='flex items-center gap-2'>
+              <p>{user?.bio? user.bio:"you can add a bio that describes you"}</p>
               <Dialog>
                             <DialogTrigger >
                                <Pen className='w-4 h-4' />

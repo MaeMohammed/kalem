@@ -8,7 +8,8 @@ const authRouter=require("../routes/auth.route")
 const channelrouter=require("../routes/channel.route")
 const userRouter=require("../routes/user.route")
 const dmRouter=require("../routes/dm.route")
-const app=express()
+const {app,io,server}=require("../utils/socket")
+
 const cookieParser=require("cookie-parser")
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
@@ -27,5 +28,5 @@ app.use("/api/dm",dmRouter)
 
 mongoose.connection.once("open",()=>{
     console.log(`connected to mongodb succesfully`)
-    app.listen(process.env.PORT,()=>console.log(`app is running on port ${process.env.PORT}`))
+    server.listen(process.env.PORT,()=>console.log(`app is running on port ${process.env.PORT}`))
 })
