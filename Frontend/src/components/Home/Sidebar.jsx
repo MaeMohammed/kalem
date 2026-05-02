@@ -30,7 +30,7 @@ const Sidebar = () => {
             resolver: zodResolver(channelSchema)
         })
     const { user } = useAuthStore();
-    const { channels, createChannel,getChannels ,setSelectedChannel,selectedChannel} = useChannelStore();
+    const { channels, createChannel,getChannels ,setSelectedChannel,selectedChannel,joinChannel} = useChannelStore();
     const {selectedUser,setSelectedUser}=useMessageStore();
     const {getUsers,users}=useUserStore();
 
@@ -88,13 +88,27 @@ const Sidebar = () => {
                             </DialogContent>
                     </Dialog>
                 </div>
-                    {channels.map((channel) => (
-                        <div key={channel._id} onClick={() =>{ setSelectedChannel(channel)
+                    {channels.map((channel) => {
+                        const member=channel.members?.some(memberId => 
+                        memberId.toString() === user._id.toString()
+)
+                       return (
+                        <div key={channel._id} onClick={() =>{
+                            if(!member) {
+                                toast.error("you are not a member of this channel,please join to be able to chat")
+                                return
+                            }
+                            setSelectedChannel(channel)
                              setSelectedUser(null)}}
-                        className={`${selectedChannel?._id === channel._id ? "bg-base-300" : ""} `}>
+                        className={`${selectedChannel?._id === channel._id ? "bg-base-300 flex items-center justify-between px-2 py-1" : "flex items-center justify-between px-2 py-1"} `}>
                             <p>{channel.name}</p>
+                            {!member && (
+                                <button onClick={(e)=>{
+                                    e.stopPropagation()
+                                    joinChannel(channel._id)}}>join</button>
+                            )}
                         </div>
-                    ))}
+                    )})}
                 </div>
                 <Separator />
                 <div>

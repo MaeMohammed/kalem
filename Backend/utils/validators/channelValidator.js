@@ -1,4 +1,4 @@
-const {check} = require('express-validator');
+const {check,param} = require('express-validator');
 const Channel = require('../../models/channel.model');
 const validate= require('../../middlewares/validation');
 
@@ -9,4 +9,7 @@ const createChannelRules=[
            throw new Error("channel name already in use ");
         }   
     })]
-module.exports={createChannelRules}    
+    const joinChannelRules=[
+        param("channelId").isMongoId().withMessage("invalid channel id")
+    ]
+module.exports={createChannelRules,joinChannelRules}    

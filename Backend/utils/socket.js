@@ -1,6 +1,7 @@
 const { Server }=require("socket.io")
 const http=require("http")
 const express=require("express")
+const { channel } = require("diagnostics_channel")
 
 const app=express()
 
@@ -28,6 +29,9 @@ io.on("connection",(socket)=>{
     console.log("a user disconnected",socket.id)
     delete(usersocketMap[userId])
      io.emit("getOnlineUsers",Object.keys(usersocketMap))
+ })
+ socket.on("joinChannel",(channelId)=>{
+    socket.join(channelId)
  })
 })
 module.exports={app,io,server,getReceiverSocketId,usersocketMap}

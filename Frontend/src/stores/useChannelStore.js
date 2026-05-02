@@ -1,9 +1,10 @@
 import {create} from "zustand";
 import {axiosInstance} from "../utils/axios";
 import { toast } from "sonner";
+import { useAuthStore } from "./useAuthStore";
 
 
-export const useChannelStore = create((set)=>({
+export const useChannelStore = create((set,get)=>({
   channels: [],
   selectedChannel:null,
   messages: [],
@@ -47,10 +48,43 @@ export const useChannelStore = create((set)=>({
     sendChannelMessage:async(channelId, data)=>{
         try {
             const res= await axiosInstance.post(`/channels/${channelId}/messages`, data);
-            await set((state)=>({messages: [...state.messages, res.data.data]}))
+             set((state)=>({messages: [...state.messages, res.data.data]}))
             return res.data.data
         }   catch (error) {
             const errs= error.response?.data?.errors
             const message = errs ? errs[0].msg : "an error occured while sending message"
-            toast.error( message)}}
+            toast.error( message)
+        
+        }},
+        joinChannel:async(channelId)=>{
+            try {
+                const res=await axiosInstance.patch(`/channels/${channelId}/join`)
+                set((state)=>({
+                    channels:state.channels.map((channel)=>{
+                      return channel._id === channelId? res.data.data : channel
+                    })
+                }))
+            } catch (error) {
+                const errs= error.response?.data?.errors
+                const message = errs ? errs[0].msg : "an error occured while joining channel"
+                toast.error( message)
+            }
+        },subscribeToChannelMessages:()=>{
+                    const { selectedChannel }=get()
+                    if(!selectedChannel) return ;
+                    const socket=useAuthStore.getState().socket
+                    socket.emit("joinChannel",selectedChannel._id)    
+                    socket.on("newChannelMessage",(newMessage)=>{
+                        if(newMessage.channelId !== selectedChannel._id) return ;
+                        if(newMessage.sender._id === useAuthStore.getState().user._id) return ;
+                        set({
+                            messages:[...get().messages,newMessage]
+                        })
+                    })
+                },
+                unsubscribeFromChannelMessages:()=>{
+                 const socket=useAuthStore.getState().socket
+                 socket.off("newChannelMessage")
+                }
+
 }))

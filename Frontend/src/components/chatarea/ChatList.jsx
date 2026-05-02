@@ -6,21 +6,26 @@ import { useAuthStore } from '@/stores/useAuthStore'
 import { useMessageStore } from '@/stores/useMessageStore'
 
 const ChatList = () => {
-    const {messages:channelmsgs,getChannelMessages,selectedChannel}=useChannelStore()
+    const {messages:channelmsgs,getChannelMessages,selectedChannel,subscribeToChannelMessages,unsubscribeFromChannelMessages}=useChannelStore()
     const {selectedUser,messages:Usermsgs,getMessages,clearMessages,subscribeToMessages,unsubscribeFromMessages}=useMessageStore()
     const {user}=useAuthStore()
     const bottomRef=useRef(null);
     const messages=selectedChannel ? channelmsgs : Usermsgs
+    const filtered=messages.filter(msg => msg.sender !== null)
     useEffect(()=>{
         if(selectedChannel){
             getChannelMessages(selectedChannel._id)
+            subscribeToChannelMessages()
         }
         else if(selectedUser){
             clearMessages()
             getMessages(selectedUser._id);
             subscribeToMessages()
         }
-      return ()=>unsubscribeFromMessages()
+      return ()=>{
+        unsubscribeFromMessages()
+        unsubscribeFromChannelMessages()
+      }
       
     }, [selectedChannel,selectedUser])
     useEffect(()=>{
@@ -32,17 +37,17 @@ const ChatList = () => {
   return (
     <div className="flex-1 p-4 overflow-y-auto">
       <ScrollArea className="h-full">
-        {messages.map((msg) => {
+        {filtered.map((msg) => {
           const senderId= typeof msg.sender === "object" ? msg.sender._id :msg.sender
           const myMsg=user?._id === senderId?.toString()
-          const senderObj = typeof msg.sender ==="object" ? msg.sender: (myMsg? user : selectedUser)
+          const senderObj = msg.sender && typeof msg.sender ==="object" ? msg.sender: (myMsg? user : selectedUser ?? null)
           
           return(
           <div key={msg._id} className={`chat ${user?._id === senderId ? "chat-end" : "chat-start"} `}>
             <div className='chat-image'>
             <Avatar>
             <AvatarImage src={senderObj?.profileIMG} />
-            <AvatarFallback className="text-white text-2xl">{senderObj?.username?.[0].toUpperCase()}</AvatarFallback>
+            <AvatarFallback className="text-white text-2xl">{senderObj?.username?.[0]?.toUpperCase()}</AvatarFallback>
             </Avatar>
             </div>
             <div className='chat-header'>
