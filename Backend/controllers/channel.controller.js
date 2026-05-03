@@ -5,7 +5,7 @@ const { io } = require('../utils/socket');
 
 
 const getChannels =asyncHandler(async(req,res)=>{
-  const channels = await Channel.find({})
+  const channels = await Channel.find({}).populate("members","username profileIMG")
   return  res.status(200).json({success:true,data:channels})
 })
 

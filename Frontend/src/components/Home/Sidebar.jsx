@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react'
 import { ScrollArea } from '../ui/scroll-area'
 import { Separator } from '../ui/separator'
-import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar'
+import { Avatar, AvatarImage, AvatarFallback, AvatarBadge } from '../ui/avatar'
 import { useAuthStore } from '@/stores/useAuthStore'
-import { Loader2, Plus, X } from 'lucide-react'
+import { ChevronUp, Loader2, LogOut, Plus, User, X } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
@@ -16,6 +16,7 @@ import { Button } from '../ui/button'
 import { useUserStore } from '@/stores/useUserStore'
 import { useMessageStore } from '@/stores/useMessageStore'
 import { useNavigate } from 'react-router-dom'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu'
 
 
 
@@ -29,7 +30,7 @@ const Sidebar = () => {
         } = useForm({
             resolver: zodResolver(channelSchema)
         })
-    const { user } = useAuthStore();
+    const { user , onlineusers ,logout} = useAuthStore();
     const { channels, createChannel,getChannels ,setSelectedChannel,selectedChannel,joinChannel} = useChannelStore();
     const {selectedUser,setSelectedUser}=useMessageStore();
     const {getUsers,users}=useUserStore();
@@ -89,8 +90,8 @@ const Sidebar = () => {
                     </Dialog>
                 </div>
                     {channels.map((channel) => {
-                        const member=channel.members?.some(memberId => 
-                        memberId.toString() === user._id.toString()
+                        const member=channel.members?.some(member=> 
+                        (member._id || member).toString() === user._id.toString()
 )
                        return (
                         <div key={channel._id} onClick={() =>{
@@ -114,30 +115,59 @@ const Sidebar = () => {
                 <div>
                     <h3>Available users </h3>
                     {
-                        users && users.map((u) => (
+                        users && users.map((u) => 
+                        {  
+                          const isonline=onlineusers.includes(u._id)
+                          return (
                             <div key={u._id} onClick={() =>{
                                  setSelectedUser(u) 
                                  setSelectedChannel(null)}}
                                 className={`${selectedUser?._id === u._id ? "bg-base-300 flex  gap-2 my-2 mx-auto px-4" : "flex gap-2 my-2 mx-auto px-4"} `}>
-                                <Avatar>
-                                  <AvatarImage src={u.profileIMG}/>
-                                  <AvatarFallback>{u?.username?.[0].toUpperCase()}</AvatarFallback>
-                                </Avatar>    
+                                <div className='relative'>
+                                   <Avatar>
+                                      <AvatarImage src={u.profileIMG}/>
+                                      <AvatarFallback>{u?.username?.[0].toUpperCase()}</AvatarFallback>
+                                   </Avatar>    
+                                    {
+                                        isonline &&
+                                        <span className="bg-green-600 dark:bg-green-800 border-2 border-base-100 absolute bottom-0 right-0 rounded-full w-3 h-3" />
+                                    }
+
+                                 </div>
                                 <p>{u.username}</p>
                             </div>
-                        ))
+                        )})
                     }
                 </div>
             </ScrollArea>
-            <div className='border-t border-base-300 flex items-center gap-2 p-4' onClick={()=>navigate("/profile")}>
-                <Avatar >
-                    <AvatarImage src={user.profileIMG} />
-                    <AvatarFallback>{user?.username?.[0]?.toUpperCase()}</AvatarFallback>
-                </Avatar>
-                <div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+              <div className='border-t border-base-300 flex items-center justify-between gap-2 p-4'>
+                <div className="flex items-center gap-2">
+                   <Avatar >
+                      <AvatarImage src={user.profileIMG} />
+                      <AvatarFallback>{user?.username?.[0]?.toUpperCase()}</AvatarFallback>
+                   </Avatar>
                     <p>{user?.username}</p>
                 </div>
+                  <ChevronUp className='w-4 h-4'/>   
             </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={()=>navigate("/profile")}>
+                    <div className='flex gap-2'>
+                        <User className='w-2 h-2' />
+                        <p>profile</p>
+                    </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={()=>logout()}>
+                    <div className="flex gap-2">
+                        <LogOut className="w-2 h-2"/>
+                        <p>logout</p>
+                    </div>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
         </div>
     )
 }

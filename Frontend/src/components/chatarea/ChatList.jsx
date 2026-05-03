@@ -6,7 +6,7 @@ import { useAuthStore } from '@/stores/useAuthStore'
 import { useMessageStore } from '@/stores/useMessageStore'
 
 const ChatList = () => {
-    const {messages:channelmsgs,getChannelMessages,selectedChannel,subscribeToChannelMessages,unsubscribeFromChannelMessages}=useChannelStore()
+    const {messages:channelmsgs,getChannelMessages,selectedChannel,subscribeToChannelMessages,unsubscribeFromChannelMessages,clearChannelMessages}=useChannelStore()
     const {selectedUser,messages:Usermsgs,getMessages,clearMessages,subscribeToMessages,unsubscribeFromMessages}=useMessageStore()
     const {user}=useAuthStore()
     const bottomRef=useRef(null);
@@ -14,6 +14,7 @@ const ChatList = () => {
     const filtered=messages.filter(msg => msg.sender !== null)
     useEffect(()=>{
         if(selectedChannel){
+            clearChannelMessages()
             getChannelMessages(selectedChannel._id)
             subscribeToChannelMessages()
         }

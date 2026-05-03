@@ -8,6 +8,9 @@ export const useChannelStore = create((set,get)=>({
   channels: [],
   selectedChannel:null,
   messages: [],
+    clearChannelMessages:()=>{
+        set({messages:[]})
+    },
     createChannel: async(data)=>{
         try {
             const res= await axiosInstance.post("/channels", data);
