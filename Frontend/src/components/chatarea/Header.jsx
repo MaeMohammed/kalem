@@ -27,7 +27,7 @@ const Header = () => {
                         {
                             isdm && (<Avatar>
                                 <AvatarImage src={selectedUser.profileIMG} />
-                                <AvatarFallback className="text-white text-2xl">{selectedUser?.username?.[0].toUpperCase()}</AvatarFallback>
+                                <AvatarFallback className="text-lg font-semibold bg-accent">{selectedUser?.username?.[0].toUpperCase()}</AvatarFallback>
                             </Avatar>)
                         }
                         <h2>{name}</h2>
@@ -45,9 +45,9 @@ const Header = () => {
                                 </TooltipContent>
                             </Tooltip>
                         </DialogTrigger>
-                        <DialogContent>
+                        <DialogContent className="bg-base-200 border-base-300 rounded-lg">
                             <DialogHeader>
-                                <DialogTitle>Members:({selectedChannel?.members.length})</DialogTitle>
+                                <DialogTitle>Members: {selectedChannel?.members.length}</DialogTitle>
                                 <DialogDescription>
                                     members in this channel
                                 </DialogDescription>
@@ -61,7 +61,7 @@ const Header = () => {
                                          <div className='relative'>
                                           <Avatar>
                                             <AvatarImage src={member.profileIMG}/>
-                                            <AvatarFallback>{member.username?.[0].toUpperCase()}</AvatarFallback>
+                                            <AvatarFallback className="text-lg font-semibold bg-accent">{member.username?.[0].toUpperCase()}</AvatarFallback>
                                           </Avatar>
                                           {
                                                 isonline && <span className="bg-green-600 dark:bg-green-800 border-2 border-base-100 absolute bottom-0 right-0 rounded-full w-3 h-3" />

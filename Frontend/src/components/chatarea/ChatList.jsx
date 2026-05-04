@@ -48,7 +48,7 @@ const ChatList = () => {
             <div className='chat-image'>
             <Avatar>
             <AvatarImage src={senderObj?.profileIMG} />
-            <AvatarFallback className="text-white text-2xl">{senderObj?.username?.[0]?.toUpperCase()}</AvatarFallback>
+            <AvatarFallback className="text-lg font-semibold bg-accent">{senderObj?.username?.[0]?.toUpperCase()}</AvatarFallback>
             </Avatar>
             </div>
             <div className='chat-header'>

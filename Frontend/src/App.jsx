@@ -15,7 +15,7 @@ const App = () => {
     checkAuth();
   },[checkAuth])
   if(ischeckingAuth) {
-    return <div><Loader2 className="animate-spin" /></div>;
+    return <div className="flex items-center justify-center"><Loader2 className="animate-spin" /></div>;
   }
   return (
   <div>
@@ -25,7 +25,7 @@ const App = () => {
       <Route path="/profile" element={user ? <Profile /> : <Navigate to="/login" />} />
       <Route path="/" element={user ? <Home /> : <Navigate to="/login" />} />
     </Routes>
-    <Toaster position="top-center"/>
+    <Toaster position="top-center" theme="dark"/>
   </div>
   )
 }
