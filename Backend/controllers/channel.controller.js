@@ -2,6 +2,7 @@ const Channel = require('../models/channel.model');
 const ChannelMsg = require('../models/channelMsg.model');
 const asyncHandler = require('express-async-handler');
 const { io } = require('../utils/socket');
+const { cloudinary } = require('../utils/cloudinary');
 
 
 const getChannels =asyncHandler(async(req,res)=>{
@@ -40,10 +41,19 @@ const sendChannelMessage=asyncHandler(async(req,res)=>{
     if(!channel) return res.status(404).json({success:false,msg:"this channel is not found"})
     const member=channel.members.some(id=> id.toString() === req.user._id.toString())
     if(!member) return res.status(400).json({success:false,msg:"you are not a member of this channel,please join first"})
+    let image;
+        if(req.file){
+            const b64=Buffer.from(req.file.buffer).toString("base64")
+            const datauri=`data:${req.file.mimetype};base64,${b64}`
+            image=(await cloudinary.uploader.upload(datauri,{
+                    folder:"kalem/images"
+                })).secure_url
+            }   
     const message= await ChannelMsg.create({
         channelId:channel,
         sender:req.user._id,
-        message :req.body.message
+        message :req.body.message,
+        image:image
     })
     const populatedMessage=await message.populate("sender","username profileIMG")
     io.to(channel._id.toString()).emit("newChannelMessage",populatedMessage)

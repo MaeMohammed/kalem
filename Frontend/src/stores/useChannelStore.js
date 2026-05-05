@@ -48,17 +48,25 @@ export const useChannelStore = create((set,get)=>({
             toast.error( message)
 
         }  },
-    sendChannelMessage:async(channelId, data)=>{
+    sendChannelMessage:async(channelId, formdata)=>{
         try {
-            const res= await axiosInstance.post(`/channels/${channelId}/messages`, data);
-             set((state)=>({messages: [...state.messages, res.data.data]}))
-            return res.data.data
-        }   catch (error) {
+            const preview=formdata.get("image") ? URL.createObjectURL(formdata.get("image")) : null
+            const tempImg={
+                _id:Date.now(),
+                sender:useAuthStore.getState().user,
+                message:formdata.get("message"),
+                image:preview,
+                createdAt:new Date()
+            }
+            set(state=>({messages:[...state.messages,tempImg]}))
+            const res= await axiosInstance.post(`/channels/${channelId}/messages`, formdata);
+            set((state)=>({messages:state.messages.filter((m)=>m._id !== tempImg._id ).concat(res.data.data)}))
+        } catch (error) {
             const errs= error.response?.data?.errors
             const message = errs ? errs[0].msg : "an error occured while sending message"
             toast.error( message)
-        
-        }},
+        }
+     }, 
         joinChannel:async(channelId)=>{
             try {
                 const res=await axiosInstance.patch(`/channels/${channelId}/join`)
@@ -78,7 +86,8 @@ export const useChannelStore = create((set,get)=>({
                     const socket=useAuthStore.getState().socket
                     socket.emit("joinChannel",selectedChannel._id)    
                     socket.on("newChannelMessage",(newMessage)=>{
-                        if(newMessage.channelId !== selectedChannel._id) return ;
+                        const channelId= typeof newMessage.channelId === "object" ?newMessage.channelId._id : newMessage.channelId
+                        if(channelId.toString() !== selectedChannel._id.toString()) return;
                         if(newMessage.sender._id === useAuthStore.getState().user._id) return ;
                         set({
                             messages:[...get().messages,newMessage]

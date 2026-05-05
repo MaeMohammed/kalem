@@ -17,10 +17,19 @@ export const useMessageStore = create((set,get)=>({
 
         }
     },
-    sendMessage:async(userId, message)=>{
+    sendMessage:async(userId, formdata)=>{
         try {
-            const res= await axiosInstance.post(`/dm/${userId}/messages`, {message});
-            set((state)=>({messages: [...state.messages, res.data.data]}))
+            const preview=formdata.get("image") ? URL.createObjectURL(formdata.get("image")) : null
+            const tempImg={
+                _id:Date.now(),
+                sender:useAuthStore.getState().user,
+                message:formdata.get("message"),
+                image:preview,
+                createdAt:new Date()
+            }
+            set(state=>({messages:[...state.messages,tempImg]}))
+            const res= await axiosInstance.post(`/dm/${userId}/messages`, formdata);
+            set((state)=>({messages:state.messages.filter((m)=>m._id !== tempImg._id ).concat(res.data.data)}))
         } catch (error) {
             console.error("Error sending message:", error);
             toast.error("error sending message")

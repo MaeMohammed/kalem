@@ -1,6 +1,7 @@
 const Message=require("../models/message.model")
 const asyncHandler=require("express-async-handler");
 const { getReceiverSocketId, io, usersocketMap } = require("../utils/socket");
+const { cloudinary } = require("../utils/cloudinary");
 
 const getMessages=asyncHandler(async(req,res)=>{
     const {id:theOtherUser}=req.params;
@@ -14,11 +15,19 @@ const getMessages=asyncHandler(async(req,res)=>{
 const sendMessage=asyncHandler(async(req,res)=>{
     const {id:theOtherUser}=req.params;
     const current_user=req.user._id;
-    const {message}=req.body;
+    let image;
+            if(req.file){
+                const b64=Buffer.from(req.file.buffer).toString("base64")
+                const datauri=`data:${req.file.mimetype};base64,${b64}`
+                image=(await cloudinary.uploader.upload(datauri,{
+                    folder:"kalem/images"
+                })).secure_url
+            }
     const newMessage= await Message.create({
         sender:current_user,
         reciver:theOtherUser,
-        message
+        message:req.body.message,
+        image:image
     })
     const receiverSocketId=getReceiverSocketId(theOtherUser)
     

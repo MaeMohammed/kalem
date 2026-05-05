@@ -75,6 +75,7 @@ const LoginForm = () => {
                sparkRadius={16}
                sparkCount={10}
                duration={500}
+               style={{width:"100%"}}
              >
             <Button type="submit" className="w-full h-12 bg-secondary text-primary-content rounded-xl font-bold " disabled={isSubmitting}>
                 {isSubmitting? <Loader2 className="animate-spin" />: "Login"}

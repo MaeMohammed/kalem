@@ -13,7 +13,7 @@ const channelMsgSchema = new mongoose.Schema({
     },
     message:{
         type:String,
-        required:true
+        
     },
     image:{
         type:String

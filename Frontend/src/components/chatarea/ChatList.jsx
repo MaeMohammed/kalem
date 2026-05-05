@@ -30,14 +30,17 @@ const ChatList = () => {
       
     }, [selectedChannel,selectedUser])
     useEffect(()=>{
+      setTimeout(()=>{
         if(bottomRef.current){
-            bottomRef.current.scrollIntoView({behavior:"smooth"})
+            bottomRef.current.scrollIntoView({behavior:"instant"})
         }
-    },[ channelmsgs,Usermsgs])
+      },150      
+      )
+    },[filtered.length])
     
   return (
     <div className="flex-1 p-4 overflow-y-auto">
-      <ScrollArea className="h-full">
+    
         {filtered.map((msg) => {
           const senderId= typeof msg.sender === "object" ? msg.sender._id :msg.sender
           const myMsg=user?._id === senderId?.toString()
@@ -54,7 +57,11 @@ const ChatList = () => {
             <div className='chat-header'>
               <p>{senderObj?.username}</p>
             </div>
-            <p className='chat-bubble'>{msg.message}</p>
+            <div className='chat-bubble'>
+            { msg.message && <p>{msg.message}</p>}
+            {msg.image && (<img src={msg.image} className='rounded-xl mt-3 max-w-xs' 
+            onLoad={()=>bottomRef.current?.scrollIntoView({behavior:"smooth"})}/>)}
+            </div>
             <div className='chat-footer'>
              <time>
              {new Date(msg.createdAt).toLocaleTimeString([],{hour:'2-digit',minute:"2-digit"})}
@@ -63,7 +70,7 @@ const ChatList = () => {
           </div>
         )})}
         <div ref={bottomRef} />
-      </ScrollArea>
+     
     </div>
   )
 }
