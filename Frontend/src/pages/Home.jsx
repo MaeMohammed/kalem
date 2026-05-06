@@ -20,7 +20,7 @@ const Home = () => {
         (selectedUser || selectedChannel) ? <ChatArea /> : (
           <div className='flex-1 flex items-center justify-center flex-col gap-6 text-primary-content'>
             <SplitText
-              text={`Welcome back, ${user?.username}!`}
+              text={`Welcome back, ${user?.username} !`}
               className='text-4xl'
               delay={50}
               duration={1.25}

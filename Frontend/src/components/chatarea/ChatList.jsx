@@ -12,6 +12,11 @@ const ChatList = () => {
     const bottomRef=useRef(null);
     const messages=selectedChannel ? channelmsgs : Usermsgs
     const filtered=messages.filter(msg => msg.sender !== null)
+
+    const getsenderId=(msg)=> msg.sender?._id || msg.sender
+    const groupedmsgs=(index)=> index > 0 &&
+    getsenderId(filtered[index]) === getsenderId(filtered[index -1])
+    
     useEffect(()=>{
         if(selectedChannel){
             clearChannelMessages()
@@ -41,18 +46,22 @@ const ChatList = () => {
   return (
     <div className="flex-1 p-4 overflow-y-auto">
     
-        {filtered.map((msg) => {
+        {filtered.map((msg,index) =>{
           const senderId= typeof msg.sender === "object" ? msg.sender._id :msg.sender
           const myMsg=user?._id === senderId?.toString()
           const senderObj = msg.sender && typeof msg.sender ==="object" ? msg.sender: (myMsg? user : selectedUser ?? null)
-          
+          const grouped=groupedmsgs(index)
           return(
-          <div key={msg._id} className={`chat ${user?._id === senderId ? "chat-end" : "chat-start"} `}>
+          <div key={msg._id} className={`chat ${user?._id === senderId ? "chat-end" : "chat-start"} ${grouped? "mt-1":"mt-3"}`}>
             <div className='chat-image'>
-            <Avatar>
-            <AvatarImage src={senderObj?.profileIMG} />
-            <AvatarFallback className="text-lg font-semibold bg-accent">{senderObj?.username?.[0]?.toUpperCase()}</AvatarFallback>
-            </Avatar>
+            {
+             !grouped && (
+                  <Avatar className={grouped? "invisible":""}>
+                  <AvatarImage src={senderObj?.profileIMG} />
+                  <AvatarFallback className="text-lg font-semibold bg-accent">{senderObj?.username?.[0]?.toUpperCase()}</AvatarFallback>
+                  </Avatar>
+             )
+            }
             </div>
             <div className='chat-header'>
               <p>{senderObj?.username}</p>

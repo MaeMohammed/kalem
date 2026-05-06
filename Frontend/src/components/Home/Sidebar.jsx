@@ -44,7 +44,7 @@ const Sidebar = () => {
     },[getChannels,getUsers])
     return (
         <div className='h-full w-72 border-r border-base-300 flex flex-col '>
-            <div className='border-b border-base-300 p-4 text-3xl'>
+            <div className='border-b-3 border-base-300 p-4 text-3xl'>
             <ShinyText
                 text="Kalem"
                 className='text-3xl font-black '
@@ -68,7 +68,7 @@ const Sidebar = () => {
                             <DialogTrigger className="flex px-2" >
                                 <Plus className="w-4 h-4" />
                             </DialogTrigger>
-                            <DialogContent className="sm:max-w-sm bg-base-200 border-base-300 rounded-lg">
+                            <DialogContent className="sm:max-w-sm bg-base-200 border-2 border-white rounded-lg">
                                 <DialogHeader>
                                     <DialogTitle className="text-xl">Create Channel</DialogTitle>
                                     <DialogDescription className="text-sm pl-2">

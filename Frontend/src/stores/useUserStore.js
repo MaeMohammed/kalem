@@ -19,7 +19,7 @@ export const useUserStore = create((set) => ({
         try {
             const res = await axiosInstance.put("/users/update-profile", formData);
             useAuthStore.getState().setUser(res.data.data)
-            toast.success("profile updated successfully");
+            
             return true
         } catch (error) {    
             const errs = error.response?.data?.errors || error.response?.data?.error || error.response?.data?.msg;

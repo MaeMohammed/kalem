@@ -14,5 +14,5 @@ export const channelSchema= z.object({
     description: z.string().optional()
 })
 export const profileSchema= z.object({
-    bio: z.string().max(200, "bio must be less than 200 characters").optional()
+    bio: z.string().min(1, "bio cannot be empty").max(200, "bio must be less than 200 characters").optional()
 })

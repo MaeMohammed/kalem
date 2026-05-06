@@ -4,6 +4,7 @@ const channelSchema = new mongoose.Schema({
     name:{
         type:String,
         required:[true,"please enter a channel name"],
+        minlength:[2,"channel name must be at least 2 characters"],
         unique:true
     },
     description:{
