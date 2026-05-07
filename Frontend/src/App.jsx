@@ -15,7 +15,7 @@ const App = () => {
     checkAuth();
   },[checkAuth])
   if(ischeckingAuth) {
-    return <div className="flex items-center justify-center"><Loader2 className="animate-spin" /></div>;
+    return <div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin" /></div>;
   }
   return (
   <div>

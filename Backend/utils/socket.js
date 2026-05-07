@@ -1,7 +1,7 @@
 const { Server }=require("socket.io")
 const http=require("http")
 const express=require("express")
-const { channel } = require("diagnostics_channel")
+const Channel=require("../models/channel.model")
 
 const app=express()
 
@@ -16,12 +16,19 @@ const getReceiverSocketId=(userId)=>{
 }
 const usersocketMap={}
 
-io.on("connection",(socket)=>{
+io.on("connection",async(socket)=>{
 
  console.log("a user connected",socket.id)
 
  const userId=socket.handshake.query.userId;
- if(userId) usersocketMap[userId]=socket.id
+ 
+ if(userId){
+    usersocketMap[userId]=socket.id
+    const channels= await Channel.find({members:userId})
+    channels.forEach(channel=>{
+            socket.join(channel._id.toString())})
+    
+    }
  
  io.emit("getOnlineUsers",Object.keys(usersocketMap))
 

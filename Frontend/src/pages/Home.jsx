@@ -13,12 +13,17 @@ const Home = () => {
   const { selectedUser } = useMessageStore()
   const { user } = useAuthStore()
   return (
-    <div className="flex h-screen">
-      <Sidebar />
+    <div className="flex h-screen overflow-hidden">
+      <div className={`${(selectedUser || selectedChannel)? "hidden md:flex" : "flex"} w-full md:w-72`}>
+        <Sidebar />
+      </div>
 
       {
-        (selectedUser || selectedChannel) ? <ChatArea /> : (
-          <div className='flex-1 flex items-center justify-center flex-col gap-6 text-primary-content'>
+        (selectedUser || selectedChannel) ? (
+          <div className="flex flex-1 flex-col"> <ChatArea /></div>
+        ):
+        (
+          <div className='hidden md:flex flex-1 items-center justify-center flex-col gap-6 text-primary-content'>
             <SplitText
               text={`Welcome back, ${user?.username} !`}
               className='text-4xl'

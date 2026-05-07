@@ -16,7 +16,7 @@ const ChatList = () => {
     const getsenderId=(msg)=> msg.sender?._id || msg.sender
     const groupedmsgs=(index)=> index > 0 &&
     getsenderId(filtered[index]) === getsenderId(filtered[index -1])
-    
+
     useEffect(()=>{
         if(selectedChannel){
             clearChannelMessages()
@@ -63,11 +63,15 @@ const ChatList = () => {
              )
             }
             </div>
-            <div className='chat-header'>
-              <p>{senderObj?.username}</p>
-            </div>
+            {
+              !grouped &&
+               <div className='chat-header'>
+                  <p>{senderObj?.username}</p>
+               </div>
+
+            }
             <div className='chat-bubble'>
-            { msg.message && <p>{msg.message}</p>}
+            { msg.message && <p style={{whiteSpace:"pre-wrap",wordBreak:"break-all",overflowWrap:"anywhere"}}>{msg.message}</p>}
             {msg.image && (<img src={msg.image} className='rounded-xl mt-3 max-w-xs' 
             onLoad={()=>bottomRef.current?.scrollIntoView({behavior:"smooth"})}/>)}
             </div>

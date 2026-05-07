@@ -1,6 +1,6 @@
 import React from 'react'
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip'
-import { Users, UsersRound } from 'lucide-react';
+import { ArrowLeft, Users, UsersRound } from 'lucide-react';
 import { useChannelStore } from '@/stores/useChannelStore';
 import { useMessageStore } from '@/stores/useMessageStore';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
@@ -11,8 +11,8 @@ import { useAuthStore } from '@/stores/useAuthStore';
 
 const Header = () => {
     const {onlineusers,user}=useAuthStore()
-    const { selectedChannel } = useChannelStore()
-    const { selectedUser } = useMessageStore()
+    const { selectedChannel ,setSelectedChannel} = useChannelStore()
+    const { selectedUser,setSelectedUser } = useMessageStore()
     const isdm = !!selectedUser
     const name = isdm ? selectedUser.username : selectedChannel?.name  
     const loggedUser=selectedChannel?.members?.find(m =>m._id === user?._id)
@@ -22,6 +22,13 @@ const Header = () => {
     const onlinedm=onlineusers.includes(selectedUser?._id)
     return (
         <div className='p-4 border-b border-base-300'>
+            <button className='flex md:hidden items-center gap-1 text-sm mb-2 text-base-content/40'
+              onClick={(()=>{
+                setSelectedUser(null);
+                setSelectedChannel(null)})}
+            >
+              <ArrowLeft className='w-4 h-4'/>
+            </button>
             <div className='flex items-center justify-between'>
                 <div className='flex items-center gap-3'>
                     <div className='flex gap-2'>

@@ -34,8 +34,8 @@ const Sidebar = () => {
             resolver: zodResolver(channelSchema)
         })
     const { user , onlineusers ,logout} = useAuthStore();
-    const { channels, createChannel,getChannels ,setSelectedChannel,selectedChannel,joinChannel} = useChannelStore();
-    const {selectedUser,setSelectedUser}=useMessageStore();
+    const { channels, createChannel,getChannels ,setSelectedChannel,selectedChannel,joinChannel,unreadchannels,clearUnread} = useChannelStore();
+    const {selectedUser,setSelectedUser,unreaddms,clearUnreaddms}=useMessageStore();
     const {getUsers,users}=useUserStore();
 
     useEffect(()=>{
@@ -43,7 +43,7 @@ const Sidebar = () => {
         getUsers()
     },[getChannels,getUsers])
     return (
-        <div className='h-full w-72 border-r border-base-300 flex flex-col '>
+        <div className='h-full w-full md:w-72 border-r-2 border-base-300 flex flex-col '>
             <div className='border-b-3 border-base-300 p-4 text-3xl'>
             <ShinyText
                 text="Kalem"
@@ -59,9 +59,8 @@ const Sidebar = () => {
                 disabled={false}
 />
             </div>
-            <ScrollArea className="flex-1">
-                <div>
-
+            <ScrollArea className="flex-1 overflow-hidden">
+             <div className='flex flex-col'>
                 <div className='flex items-center justify-between'>
                     <h3 className='px-3 py-2 font-semibold -tracking-widest text-sm uppercase text-base-content/20'>Channels </h3>
                     <Dialog className="bg-base-200 border-base-300">
@@ -117,10 +116,10 @@ const Sidebar = () => {
                             </DialogContent>
                     </Dialog>
                 </div>
+                <div className='overflow-y-auto max-h-48 overflow-x-hidden '>
                     {channels.map((channel) => {
                         const member=channel.members?.some(member=> 
-                        (member._id || member).toString() === user._id.toString()
-)
+                        (member._id || member).toString() === user._id.toString())
                        return (
                         <div key={channel._id} onClick={() =>{
                             if(!member) {
@@ -128,30 +127,42 @@ const Sidebar = () => {
                                 return
                             }
                             setSelectedChannel(channel)
-                             setSelectedUser(null)}}
-                           className={`flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer ${selectedChannel?._id === channel._id ? "bg-primary/25 text-primary" : "hover:bg-base-200"} `}>
-                            <p>{channel.name}</p>
+                            setSelectedUser(null)
+                            clearUnread(channel?._id)
+                        }}
+                           className={`min-w-0 flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer ${selectedChannel?._id === channel._id ? "bg-primary/25 text-primary" : "hover:bg-base-200"} `}>
+                            <div className='flex items-center justify-between flex-1 min-w-0 gap-2'>
+                                <p className='min-w-0 truncate'>{channel.name}</p>
+                                {
+                                    unreadchannels.has(channel._id) && 
+                                    <span className='w-2 h-2 rounded-full bg-primary flex-shrink-0'></span>
+                                }
+                            </div>
                             {!member && (
-                                <button className='bg-secondary/25 text-primary-content w-12 h-12' onClick={(e)=>{
+                                <button className='text-xs px-2 py-1 bg-secondary text-primary-content hover:bg-primary transition-colors rounded-lg' onClick={(e)=>{
                                     e.stopPropagation()
                                     joinChannel(channel._id)}}>join</button>
                             )}
                         </div>
                     )})}
                 </div>
-                <Separator className="h-1 bg-base-300"/>
+                </div>
+                <Separator className="h-1 bg-white"/>
                 <div>
                     <h3 className='px-3 py-2 font-semibold -tracking-widest text-sm uppercase text-base-content/20'>Available users </h3>
+                    <div className='overflow-y-auto max-h-64 overflow-x-hidden custom-scroll'>
                     {
                         users && users.map((u) => 
                         {  
-                          const isonline=onlineusers.includes(u._id)
+                          const isonline=onlineusers?.includes(u._id)
                           return (
                             <HoverCard key={u._id} >
                                 <HoverCardTrigger>
                                  <div  onClick={() =>{ 
                                    setSelectedUser(u) 
-                                   setSelectedChannel(null)}}
+                                   setSelectedChannel(null)
+                                   clearUnreaddms(u?._id)
+                                }}
                                    className={`flex items-center gap-2 rounded-md px-3 py-2 cursor-pointer  ${selectedUser?._id === u._id ? "bg-primary/25 text-primary" : "hover:bg-base-200"} `}>
                                      <div className='relative'>
                                       <Avatar>
@@ -163,7 +174,13 @@ const Sidebar = () => {
                                            <span className="bg-green-600 dark:bg-green-800 border-2 border-base-100 absolute bottom-0 right-0 rounded-full w-3 h-3" />
                                          }
                                      </div>
-                                     <p>{u.username}</p>
+                                     <div className='flex items-center justify-between w-full'>
+                                       <p>{u.username}</p>
+                                          {
+                                             unreaddms.has(u?._id) &&
+                                               <span className='w-2 h-2 rounded-full bg-primary'></span>
+                                          }
+                                     </div>
                                     </div>
                                 </HoverCardTrigger>
                                 <HoverCardContent side="right" className="w-64 bg-base-200 border-primary-content">
@@ -182,6 +199,7 @@ const Sidebar = () => {
                             </HoverCard>
                         )})
                     }
+                    </div>
                 </div>
             </ScrollArea>
             <DropdownMenu>

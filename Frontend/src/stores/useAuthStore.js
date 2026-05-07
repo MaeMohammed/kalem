@@ -2,6 +2,8 @@ import {create} from "zustand";
 import {axiosInstance} from "../utils/axios";
 import { toast } from "sonner";
 import {io} from "socket.io-client"
+import { useMessageStore } from "./useMessageStore";
+import { useChannelStore } from "./useChannelStore";
 
 
 export const useAuthStore = create((set,get) => ({
@@ -59,8 +61,10 @@ export const useAuthStore = create((set,get) => ({
     
     checkAuth:async()=>{
         try {
+            set({ischeckingAuth: true})
             const res= await axiosInstance.get("/auth/checkauth");
-            set({user: res.data.data.user, ischeckingAuth: false})
+            console.log("checkauth response", res.data)
+            set({user: res.data.data, ischeckingAuth: false})
              get().connectSocket()
         } catch (error) {
              set({ischeckingAuth: false})
@@ -78,6 +82,19 @@ export const useAuthStore = create((set,get) => ({
        set({socket:socket})
        socket.on("getOnlineUsers",(onlineusersIDS)=>{
        set({onlineusers:onlineusersIDS})
+       })
+       socket.on("newMessage",(newMessage)=>{
+        const selectedUser=useMessageStore.getState().selectedUser
+        if(newMessage.sender === selectedUser?._id) return;
+        useMessageStore.getState().addunreaddm(newMessage.sender)
+       })
+       socket.on("newChannelMessage",(newchannelMessage)=>{
+        console.log("newChannelMessage fired", newchannelMessage)
+        const selectedChannel=useChannelStore.getState().selectedChannel
+        const channelId=typeof newchannelMessage.channelId === "object"? newchannelMessage.channelId._id : newchannelMessage.channelId
+        if(channelId === selectedChannel?._id) return;
+        console.log("channelId", channelId, "selectedChannel", selectedChannel?._id)
+        useChannelStore.getState().addunread(channelId)
        })
     },
     disconnectSocket:()=>{

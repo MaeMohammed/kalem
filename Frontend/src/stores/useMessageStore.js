@@ -7,6 +7,7 @@ import { useAuthStore } from "./useAuthStore";
 export const useMessageStore = create((set,get)=>({
     messages: [],
     selectedUser: null,
+    unreaddms:new Set(),
     getMessages:async(userId)=>{
         try {
             const res= await axiosInstance.get(`/dm/${userId}/messages`);
@@ -17,6 +18,17 @@ export const useMessageStore = create((set,get)=>({
 
         }
     },
+    addunreaddm:(userId)=>{
+     set(state=>({unreaddms:new Set([...state.unreaddms,userId])}))
+    },
+    clearUnreaddms:(userId)=>{
+        set(state=>{
+            const s = new Set(state.unreaddms)
+            s.delete(userId);
+            return {unreaddms: s}
+        })
+    }
+    ,
     sendMessage:async(userId, formdata)=>{
         try {
             const preview=formdata.get("image") ? URL.createObjectURL(formdata.get("image")) : null
@@ -50,7 +62,10 @@ export const useMessageStore = create((set,get)=>({
                
                 console.log("full message object:", JSON.stringify(newMessage))
 
-                if(newMessage.sender !== selectedUser._id) return ;
+                if(newMessage.sender !== selectedUser._id){
+                    get().addunreaddm(newMessage.sender)
+                    return ;
+                };
                 const populatedMessage={
                     ...newMessage,sender:selectedUser
                 }

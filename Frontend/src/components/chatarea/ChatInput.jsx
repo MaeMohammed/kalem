@@ -76,7 +76,7 @@ const ChatInput = () => {
       <input type="file" id='imgupload' ref={imageRef} className='hidden' onChange={handleImage} accept='image/*'/>
       <Input placeholder="Message..." value={message} onChange={(e) => setMessage(e.target.value)}
       onKeyDown={(e) => e.key === "Enter" && handlemsgsubmit()} />
-             <Button type='submit' onClick={handlemsgsubmit} className="rounded-xl">
+             <Button type='submit' onClick={handlemsgsubmit} className="rounded-xl hover:bg-secondary">
                 <Send className='w-6 h-6'/>
               </Button>
     </div>

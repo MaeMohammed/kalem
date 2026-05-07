@@ -8,6 +8,17 @@ export const useChannelStore = create((set,get)=>({
   channels: [],
   selectedChannel:null,
   messages: [],
+  unreadchannels:new Set(),
+  addunread:(channelId)=>{
+    set(state=>({unreadchannels:new Set([...state.unreadchannels,channelId])}))
+  },
+  clearUnread:(channelId)=>{
+    set(state=>{
+        const s=new Set(state.unreadchannels);
+        s.delete(channelId);
+        return {unreadchannels:s}
+    })
+  },
     clearChannelMessages:()=>{
         set({messages:[]})
     },
@@ -15,7 +26,7 @@ export const useChannelStore = create((set,get)=>({
         try {
             const res= await axiosInstance.post("/channels", data);
             set((state)=>({channels: [...state.channels, res.data.data]}))
-            toast.success("channel created successfully")
+            
             return true;
         } catch (error) {
             const errs= error.response?.data?.errors
@@ -45,7 +56,7 @@ export const useChannelStore = create((set,get)=>({
         }   catch (error) {
             const errs= error.response?.data?.errors
             const message = errs ? errs[0].msg : "an error occured while fetching messages"
-            toast.error( message)
+            toast.error(message)
 
         }  },
     sendChannelMessage:async(channelId, formdata)=>{
@@ -87,8 +98,12 @@ export const useChannelStore = create((set,get)=>({
                     socket.emit("joinChannel",selectedChannel._id)    
                     socket.on("newChannelMessage",(newMessage)=>{
                         const channelId= typeof newMessage.channelId === "object" ?newMessage.channelId._id : newMessage.channelId
-                        if(channelId.toString() !== selectedChannel._id.toString()) return;
+
                         if(newMessage.sender._id === useAuthStore.getState().user._id) return ;
+                        if(channelId.toString() !== selectedChannel._id.toString()){
+                            get().addunread(channelId);
+                            return;
+                        };
                         set({
                             messages:[...get().messages,newMessage]
                         })
