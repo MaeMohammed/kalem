@@ -10,8 +10,10 @@ const Login = () => {
     >
       
       <div className='flex flex-col items-center w-full max-w-md px-4'>
+        <div className="flex items-center gap-3 mb-5">
+        <img src='./kalem.svg' className='w-16 h-16 mb-4'/>
         <Shuffle
-          className='text-5xl text-center font-black  tracking-widest mb-5'
+          className='text-5xl text-center font-black lowercase tracking-widest mb-5'
           text="Kalem"
           shuffleDirection="right"
           duration={0.45}
@@ -26,6 +28,7 @@ const Login = () => {
           loop={false}
           loopDelay={0}
         />
+        </div>
         <BorderGlow
           className='w-full max-w-md'
           edgeSensitivity={30}

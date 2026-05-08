@@ -14,7 +14,7 @@ const Home = () => {
   const { user } = useAuthStore()
   return (
     <div className="flex h-screen overflow-hidden">
-      <div className={`${(selectedUser || selectedChannel)? "hidden md:flex" : "flex"} w-full md:w-72`}>
+      <div className={`${(selectedUser || selectedChannel)? "hidden md:flex" : "flex"} w-full md:w-72 h-full`}>
         <Sidebar />
       </div>
 

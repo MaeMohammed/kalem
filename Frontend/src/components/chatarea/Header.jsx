@@ -21,7 +21,7 @@ const Header = () => {
     const onlineUsers=selectedChannel?.members?.filter((m)=>onlineusers.includes(m._id)).length
     const onlinedm=onlineusers.includes(selectedUser?._id)
     return (
-        <div className='p-4 border-b border-base-300'>
+        <div className='p-4 border-b border-white'>
             <button className='flex md:hidden items-center gap-1 text-sm mb-2 text-base-content/40'
               onClick={(()=>{
                 setSelectedUser(null);

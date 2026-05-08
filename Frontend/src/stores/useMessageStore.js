@@ -8,14 +8,16 @@ export const useMessageStore = create((set,get)=>({
     messages: [],
     selectedUser: null,
     unreaddms:new Set(),
+    isLoadingMessages:false,
     getMessages:async(userId)=>{
+        set({isLoadingMessages:true})
         try {
             const res= await axiosInstance.get(`/dm/${userId}/messages`);
-            set({messages: res.data.data})
+            set({messages: res.data.data,isLoadingMessages:false})
         } catch (error) {
             console.error("Error fetching messages:", error);
-                toast.error("error loading messages")
-
+            toast.error("error loading messages")
+             set({isLoadingMessages:false})
         }
     },
     addunreaddm:(userId)=>{

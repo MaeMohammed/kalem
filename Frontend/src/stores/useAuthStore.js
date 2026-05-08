@@ -6,6 +6,7 @@ import { useMessageStore } from "./useMessageStore";
 import { useChannelStore } from "./useChannelStore";
 
 
+
 export const useAuthStore = create((set,get) => ({
     user: null,
     isLoggedin: false,
@@ -55,6 +56,8 @@ export const useAuthStore = create((set,get) => ({
             await axiosInstance.post("/auth/logout");
             set({user: null, isLoading: false})
             get().disconnectSocket()
+            useChannelStore.getState().setSelectedChannel(null)
+            useMessageStore.getState().setSelectedUser(null)
         } catch (error) {
             toast.error("error logging out")
         }   },

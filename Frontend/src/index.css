@@ -23,3 +23,6 @@
     scrollbar-width: thin;
     scrollbar-color: rgba(237, 232, 232, 0.2) transparent;
 }
+body {
+    font-family: "Space Grotesk", sans-serif;
+}

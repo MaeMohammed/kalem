@@ -20,7 +20,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import ShinyText from '../reactbits/ShinyText'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '../ui/hover-card'
 import ClickSpark from '../reactbits/ClickSpark'
-
+import {UsersSkeleton,Sideskeleton}from "./Skeletons"
 
 
 const Sidebar = () => {
@@ -34,17 +34,18 @@ const Sidebar = () => {
             resolver: zodResolver(channelSchema)
         })
     const { user , onlineusers ,logout} = useAuthStore();
-    const { channels, createChannel,getChannels ,setSelectedChannel,selectedChannel,joinChannel,unreadchannels,clearUnread} = useChannelStore();
+    const { channels, createChannel,getChannels ,setSelectedChannel,selectedChannel,joinChannel,unreadchannels,clearUnread,isLoadingChannels} = useChannelStore();
     const {selectedUser,setSelectedUser,unreaddms,clearUnreaddms}=useMessageStore();
-    const {getUsers,users}=useUserStore();
+    const {getUsers,users,isLoadingUsers}=useUserStore();
 
     useEffect(()=>{
         getChannels()
         getUsers()
     },[getChannels,getUsers])
     return (
-        <div className='h-full w-full md:w-72 border-r-2 border-base-300 flex flex-col '>
-            <div className='border-b-3 border-base-300 p-4 text-3xl'>
+        <div className='h-full w-full md:w-72 border-r border-white flex flex-col '>
+            <div className='border-b-3 border-base-300 p-4 flex items-center gap-3'>
+              <img src='./kalem.svg' className='w-9 h-9'/>   
             <ShinyText
                 text="Kalem"
                 className='text-3xl font-black '
@@ -59,8 +60,8 @@ const Sidebar = () => {
                 disabled={false}
 />
             </div>
-            <ScrollArea className="flex-1 overflow-hidden">
-             <div className='flex flex-col'>
+            <div className="flex-1 flex flex-col min-h-0">
+             <div>
                 <div className='flex items-center justify-between'>
                     <h3 className='px-3 py-2 font-semibold -tracking-widest text-sm uppercase text-base-content/20'>Channels </h3>
                     <Dialog className="bg-base-200 border-base-300">
@@ -117,7 +118,7 @@ const Sidebar = () => {
                     </Dialog>
                 </div>
                 <div className='overflow-y-auto max-h-48 overflow-x-hidden '>
-                    {channels.map((channel) => {
+                    {isLoadingChannels? <Sideskeleton/> : channels.map((channel) => {
                         const member=channel.members?.some(member=> 
                         (member._id || member).toString() === user._id.toString())
                        return (
@@ -148,11 +149,11 @@ const Sidebar = () => {
                 </div>
                 </div>
                 <Separator className="h-1 bg-white"/>
-                <div>
+                <div className='flex flex-col flex-1 min-h-0'>
                     <h3 className='px-3 py-2 font-semibold -tracking-widest text-sm uppercase text-base-content/20'>Available users </h3>
-                    <div className='overflow-y-auto max-h-64 overflow-x-hidden custom-scroll'>
+                    <div className='overflow-y-auto flex-1 overflow-x-hidden custom-scroll'>
                     {
-                        users && users.map((u) => 
+                      isLoadingUsers?<UsersSkeleton/>: users && users.map((u) => 
                         {  
                           const isonline=onlineusers?.includes(u._id)
                           return (
@@ -163,7 +164,7 @@ const Sidebar = () => {
                                    setSelectedChannel(null)
                                    clearUnreaddms(u?._id)
                                 }}
-                                   className={`flex items-center gap-2 rounded-md px-3 py-2 cursor-pointer  ${selectedUser?._id === u._id ? "bg-primary/25 text-primary" : "hover:bg-base-200"} `}>
+                                   className={`flex items-center gap-2 rounded-md px-3 py-2 cursor-pointer  ${selectedUser?._id === u._id ? "bg-base-200" : "hover:bg-base-200"} `}>
                                      <div className='relative'>
                                       <Avatar>
                                          <AvatarImage src={u.profileIMG}/>
@@ -201,30 +202,33 @@ const Sidebar = () => {
                     }
                     </div>
                 </div>
-            </ScrollArea>
+            </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-              <div className='border-t border-base-300 flex items-center justify-between gap-2 p-4'>
+              <div className='border-t border-white flex items-center justify-between gap-2 p-4'>
                 <div className="flex items-center gap-2">
-                   <Avatar >
-                      <AvatarImage src={user.profileIMG} />
-                      <AvatarFallback className="text-lg font-semibold bg-accent">{user?.username?.[0]?.toUpperCase()}</AvatarFallback>
-                   </Avatar>
+                  <div className='relative'>
+                            <Avatar>
+                                <AvatarImage src={user?.profileIMG}/>
+                                <AvatarFallback className="text-lg font-semibold bg-accent">{user?.username?.[0].toUpperCase()}</AvatarFallback>
+                            </Avatar>                     
+                            <span className="bg-green-600 dark:bg-green-800 border-2 border-base-100 absolute bottom-0 right-0 rounded-full w-3 h-3" />                    
+                     </div>
                     <p>{user?.username}</p>
                 </div>
                   <ChevronUp className='w-4 h-4'/>   
             </div>
               </DropdownMenuTrigger>
-              <DropdownMenuContent>
+              <DropdownMenuContent className="border border-white bg-base-100">
                 <DropdownMenuItem onClick={()=>navigate("/profile")}>
                     <div className='flex gap-2'>
-                        <User className='w-2 h-2' />
+                        <User className='w-4 h-4' />
                         <p>profile</p>
                     </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={()=>logout()}>
                     <div className="flex gap-2">
-                        <LogOut className="w-2 h-2"/>
+                        <LogOut className="w-4 h-4"/>
                         <p>logout</p>
                     </div>
                 </DropdownMenuItem>

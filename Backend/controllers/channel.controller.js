@@ -6,7 +6,7 @@ const { cloudinary } = require('../utils/cloudinary');
 
 
 const getChannels =asyncHandler(async(req,res)=>{
-  const channels = await Channel.find({}).populate("members","username profileIMG")
+  const channels = await Channel.find({}).populate("members createdBy","username profileIMG")
   return  res.status(200).json({success:true,data:channels})
 })
 

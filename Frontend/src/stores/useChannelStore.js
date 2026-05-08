@@ -9,6 +9,8 @@ export const useChannelStore = create((set,get)=>({
   selectedChannel:null,
   messages: [],
   unreadchannels:new Set(),
+  isLoadingChannels:false,
+  isLoading:false,
   addunread:(channelId)=>{
     set(state=>({unreadchannels:new Set([...state.unreadchannels,channelId])}))
   },
@@ -23,10 +25,11 @@ export const useChannelStore = create((set,get)=>({
         set({messages:[]})
     },
     createChannel: async(data)=>{
+         set({isLoading:true})
         try {
             const res= await axiosInstance.post("/channels", data);
             set((state)=>({channels: [...state.channels, res.data.data]}))
-            
+
             return true;
         } catch (error) {
             const errs= error.response?.data?.errors
@@ -36,28 +39,31 @@ export const useChannelStore = create((set,get)=>({
         }
     },
     getChannels:async()=>{
+         set({isLoadingChannels:true})
         try {
             const res= await axiosInstance.get("/channels");
-            set((state)=>({channels: res.data.data}))
+            set((state)=>({channels: res.data.data,isLoadingChannels:false}))
         } catch (error) {
             const errs= error.response?.data?.errors
             const message = errs ? errs[0].msg : "an error occured while fetching channels"
             toast.error( message)
+             set({isLoadingChannels:false})
         }
     },
     setSelectedChannel:(channel)=>{
         set({selectedChannel: channel})
     },
     getChannelMessages:async(channelId)=>{
+         set({isLoading:true})
         try {
             const res= await axiosInstance.get(`/channels/${channelId}/messages`);
             console.log(res.data)
-            set( {messages: res.data.data})
+            set( {messages: res.data.data,isLoading:false})
         }   catch (error) {
             const errs= error.response?.data?.errors
             const message = errs ? errs[0].msg : "an error occured while fetching messages"
             toast.error(message)
-
+             set({isLoading:false})
         }  },
     sendChannelMessage:async(channelId, formdata)=>{
         try {
