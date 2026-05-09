@@ -28,13 +28,12 @@ export const useChannelStore = create((set,get)=>({
          set({isLoading:true})
         try {
             const res= await axiosInstance.post("/channels", data);
-            set((state)=>({channels: [...state.channels, res.data.data]}))
+            set((state)=>({channels: [...state.channels, res.data.data],isLoading:false}))
 
             return true;
         } catch (error) {
-            const errs= error.response?.data?.errors
-            const message = errs ? errs[0].msg : "an error occured while creating this channel"
-            toast.error( message)
+           const message  = error.response?.data?.message || "an error occured while creating channel";
+            toast.error(message)
             return false;
         }
     },
@@ -44,12 +43,24 @@ export const useChannelStore = create((set,get)=>({
             const res= await axiosInstance.get("/channels");
             set((state)=>({channels: res.data.data,isLoadingChannels:false}))
         } catch (error) {
-            const errs= error.response?.data?.errors
-            const message = errs ? errs[0].msg : "an error occured while fetching channels"
-            toast.error( message)
-             set({isLoadingChannels:false})
+            const message  = error.response?.data?.message || "an error occured while fetching channels";
+            toast.error(message)
+            set({isLoadingChannels:false})
         }
     },
+     leaveChannel:async(channelId)=>{
+        try {
+        const res = await axiosInstance.patch(`/channels/${channelId}/leave`)
+        await get().getChannels()
+            set({   
+               selectedChannel:null
+            })
+            toast.success("left channel successfully")
+        } catch (error) {
+           const message  = error.response?.data?.message || "an error occured while leaving channel";
+            toast.error(message)
+        }
+     },
     setSelectedChannel:(channel)=>{
         set({selectedChannel: channel})
     },
@@ -57,11 +68,10 @@ export const useChannelStore = create((set,get)=>({
          set({isLoading:true})
         try {
             const res= await axiosInstance.get(`/channels/${channelId}/messages`);
-            console.log(res.data)
+
             set( {messages: res.data.data,isLoading:false})
         }   catch (error) {
-            const errs= error.response?.data?.errors
-            const message = errs ? errs[0].msg : "an error occured while fetching messages"
+           const message  = error.response?.data?.message || "an error occured while fetching messages";
             toast.error(message)
              set({isLoading:false})
         }  },
@@ -79,22 +89,19 @@ export const useChannelStore = create((set,get)=>({
             const res= await axiosInstance.post(`/channels/${channelId}/messages`, formdata);
             set((state)=>({messages:state.messages.filter((m)=>m._id !== tempImg._id ).concat(res.data.data)}))
         } catch (error) {
-            const errs= error.response?.data?.errors
-            const message = errs ? errs[0].msg : "an error occured while sending message"
-            toast.error( message)
+            const message  = error.response?.data?.message || "ann error occured while sending message";
+            toast.error(message)
+        
         }
      }, 
         joinChannel:async(channelId)=>{
             try {
                 const res=await axiosInstance.patch(`/channels/${channelId}/join`)
-                set((state)=>({
-                    channels:state.channels.map((channel)=>{
-                      return channel._id === channelId? res.data.data : channel
-                    })
-                }))
+                get().getChannels()
+                const socket=useAuthStore.getState().socket
+                socket.emit("joinChannel",channelId)
             } catch (error) {
-                const errs= error.response?.data?.errors
-                const message = errs ? errs[0].msg : "an error occured while joining channel"
+                const message  = error.response?.data?.message || "ann error occured while joining channel";
                 toast.error( message)
             }
         },subscribeToChannelMessages:()=>{

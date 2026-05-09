@@ -1,6 +1,6 @@
 import React from 'react'
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip'
-import { ArrowLeft, Users, UsersRound } from 'lucide-react';
+import { ArrowLeft, LogOut, Users, UsersRound } from 'lucide-react';
 import { useChannelStore } from '@/stores/useChannelStore';
 import { useMessageStore } from '@/stores/useMessageStore';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
@@ -10,18 +10,18 @@ import { useAuthStore } from '@/stores/useAuthStore';
 
 
 const Header = () => {
-    const {onlineusers,user}=useAuthStore()
-    const { selectedChannel ,setSelectedChannel} = useChannelStore()
+    const {onlineUsers,user}=useAuthStore()
+    const { selectedChannel ,setSelectedChannel,leaveChannel} = useChannelStore()
     const { selectedUser,setSelectedUser } = useMessageStore()
     const isdm = !!selectedUser
     const name = isdm ? selectedUser.username : selectedChannel?.name  
     const loggedUser=selectedChannel?.members?.find(m =>m._id === user?._id)
     const remaining=selectedChannel?.members?.filter(m =>m._id !== user?._id)
     const sortedMembers=loggedUser ?[loggedUser,...remaining]: remaining
-    const onlineUsers=selectedChannel?.members?.filter((m)=>onlineusers.includes(m._id)).length
-    const onlinedm=onlineusers.includes(selectedUser?._id)
+    const onlineCount=selectedChannel?.members?.filter((m)=>onlineUsers.includes(m._id)).length
+    const onlinedm=onlineUsers.includes(selectedUser?._id)
     return (
-        <div className='p-4 border-b border-white'>
+        <div className='p-4 border-b border-base-300 sticky bg-base-200 z-50'>
             <button className='flex md:hidden items-center gap-1 text-sm mb-2 text-base-content/40'
               onClick={(()=>{
                 setSelectedUser(null);
@@ -51,7 +51,7 @@ const Header = () => {
                             !isdm && 
                             <div className='flex gap-2 items-center'>
                                 <Users className='w-4 h-4'/>
-                                 <p className='text-xs text-base-content/40 '>{onlineUsers? onlineUsers :"0"} online</p>
+                                 <p className='text-xs text-base-content/40 '>{onlineCount? onlineCount :"0"} online</p>
                             </div>
                         }
                         {
@@ -76,15 +76,20 @@ const Header = () => {
                             <DialogHeader>
                                 <DialogTitle>Members: {selectedChannel?.members.length}</DialogTitle>
                                 <DialogDescription>
-                                   <p className='text-xs text-base-content/40 '>{onlineUsers? onlineUsers :"0"} online</p>
+                                   <p className='text-xs text-base-content/40 '>{onlineCount? onlineCount :"0"} online</p>
                                 </DialogDescription>
                             </DialogHeader>
                               <ScrollArea className="h-72">
                                  {
                                     sortedMembers?.map((member)=>{
-                                       const isonline=onlineusers.includes(member._id)
+                                       const isonline=onlineUsers.includes(member._id)
                                         return (
-                                        <div key={member._id} className='flex items-center gap-2 py-2 hover:bg-base-300 rounded-lg transition-colors px-2'>
+                                        <div key={member._id} className='flex items-center gap-2 py-2 hover:bg-base-300 rounded-lg transition-colors px-2 cursor-pointer'
+                                        onClick={()=>{
+                                            if(member._id === user._id) return;
+                                            setSelectedUser(member)
+                                            setSelectedChannel(null)
+                                        }}>
                                          <div className='relative'>
                                           <Avatar>
                                             <AvatarImage src={member.profileIMG}/>
@@ -105,6 +110,12 @@ const Header = () => {
                                     )})
                                  }
                               </ScrollArea>
+                              <button className='w-full mt-2 py-2 text-sm bg-secondary hover:bg-primary rounded-lg transition-colors flex items-center justify-center gap-3'
+                              onClick={()=>leaveChannel(selectedChannel._id)}
+                              >
+                                 <LogOut className='w-4 h-4 ' />
+                                  leave channel
+                              </button>
                         </DialogContent>
                     </Dialog>
 

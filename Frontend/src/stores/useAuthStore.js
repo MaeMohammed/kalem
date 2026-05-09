@@ -26,9 +26,8 @@ export const useAuthStore = create((set,get) => ({
              get().connectSocket()
             return true;
         } catch (error) {
-            const errs= error.response?.data?.errors
-            const message = errs ? errs[0].msg : "error signing up"
-            toast.error( message || "Error signing up")
+            const message  = error.response?.data?.message || "an error occured while signing up";
+            toast.error(message)
             set({isLoading: false})
             return false;
         }
@@ -43,10 +42,9 @@ export const useAuthStore = create((set,get) => ({
             get().connectSocket()
             return true;
         } catch (error) {
-            const errs = error.response?.data?.errors;
-            const message = errs ? errs[0].msg : "invalid email or password";
+            const message  = error.response?.data?.message || "Invalid email or password";
             set({isLoading: false})
-            toast.error(message || "invalid email or password")
+            toast.error(message)
             return false;
         }
     },
@@ -59,7 +57,7 @@ export const useAuthStore = create((set,get) => ({
             useChannelStore.getState().setSelectedChannel(null)
             useMessageStore.getState().setSelectedUser(null)
         } catch (error) {
-            toast.error("error logging out")
+            toast.error("an error occured while logging out")
         }   },
     
     checkAuth:async()=>{
@@ -70,7 +68,9 @@ export const useAuthStore = create((set,get) => ({
             set({user: res.data.data, ischeckingAuth: false})
              get().connectSocket()
         } catch (error) {
-             set({ischeckingAuth: false})
+            const message  = error.response?.data?.message || "error checking auth";
+            toast.error(message)
+            set({ischeckingAuth: false})
         }
     },
     connectSocket:()=>{
@@ -84,7 +84,7 @@ export const useAuthStore = create((set,get) => ({
        socket.connect()
        set({socket:socket})
        socket.on("getOnlineUsers",(onlineusersIDS)=>{
-       set({onlineusers:onlineusersIDS})
+       set({onlineUsers:onlineusersIDS})
        })
        socket.on("newMessage",(newMessage)=>{
         const selectedUser=useMessageStore.getState().selectedUser
@@ -92,11 +92,11 @@ export const useAuthStore = create((set,get) => ({
         useMessageStore.getState().addunreaddm(newMessage.sender)
        })
        socket.on("newChannelMessage",(newchannelMessage)=>{
-        console.log("newChannelMessage fired", newchannelMessage)
+
         const selectedChannel=useChannelStore.getState().selectedChannel
         const channelId=typeof newchannelMessage.channelId === "object"? newchannelMessage.channelId._id : newchannelMessage.channelId
         if(channelId === selectedChannel?._id) return;
-        console.log("channelId", channelId, "selectedChannel", selectedChannel?._id)
+
         useChannelStore.getState().addunread(channelId)
        })
     },

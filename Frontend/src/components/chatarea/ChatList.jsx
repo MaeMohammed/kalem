@@ -7,7 +7,7 @@ import { useMessageStore } from '@/stores/useMessageStore'
 import{ ChatSkeleton } from "../Home/Skeletons"
 
 const ChatList = () => {
-    const {messages:channelmsgs,getChannelMessages,selectedChannel,subscribeToChannelMessages,unsubscribeFromChannelMessages,clearChannelMessages}=useChannelStore()
+    const {messages:channelmsgs,getChannelMessages,selectedChannel,subscribeToChannelMessages,unsubscribeFromChannelMessages,clearChannelMessages,isLoading:isLoadingChannel}=useChannelStore()
     const {selectedUser,messages:Usermsgs,getMessages,clearMessages,subscribeToMessages,unsubscribeFromMessages,isLoadingMessages}=useMessageStore()
     const {user}=useAuthStore()
     const bottomRef=useRef(null);
@@ -49,13 +49,13 @@ const ChatList = () => {
         const today=new Date()
         const yesterday=new Date()
         yesterday.setDate(today.getDate() -1)
-        if(d.toString() == today.toDateString()) return "Today"
-        if(d.toString() == yesterday.toDateString()) return "Yesterday"
-        return d.toLocaleTimeString("en-US",{month:"long",day:"numeric"})
+        if(d.toDateString() == today.toDateString()) return "Today"
+        if(d.toDateString() == yesterday.toDateString()) return "Yesterday"
+        return d.toLocaleDateString("en-US",{month:"long",day:"numeric"})
 
     }
   return (
-    <div className="flex-1 p-4 overflow-y-auto">
+    <div className="flex-1 p-4 overflow-y-auto overflow-x-hidden">
      {
       selectedChannel && !isLoadingMessages &&
          <div className='flex flex-col items-center gap-2 text-center bg-base-200 p-6 mb-4 border border-white rounded-2xl'>
@@ -68,7 +68,7 @@ const ChatList = () => {
            <p className='text-xs text-base-content/30'>{selectedChannel?.members?.length} members</p>
         </div>
      }
-        {isLoadingMessages ? <ChatSkeleton/>:filtered.map((msg,index) =>{
+        {isLoadingMessages || isLoadingChannel? <ChatSkeleton/>:filtered.map((msg,index) =>{
           const senderId= typeof msg.sender === "object" ? msg.sender._id :msg.sender
           const myMsg=user?._id === senderId?.toString()
           const senderObj = msg.sender && typeof msg.sender ==="object" ? msg.sender: (myMsg? user : selectedUser ?? null)
@@ -104,7 +104,7 @@ const ChatList = () => {
                </div>}
             <div className='chat-bubble'>
             {msg.message && <p style={{whiteSpace:"pre-wrap",wordBreak:"break-all",overflowWrap:"anywhere"}}>{msg.message}</p>}
-            {msg.image && (<img src={msg.image} className='rounded-xl mt-3 max-w-xs' 
+            {msg.image && (<img src={msg.image} className='rounded-xl mt-3 max-w-[200px] md:max-w-xs' 
             onLoad={()=>bottomRef.current?.scrollIntoView({behavior:"smooth"})}/>)}
             </div>
             <div className='chat-footer'>

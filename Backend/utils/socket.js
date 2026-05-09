@@ -18,7 +18,7 @@ const usersocketMap={}
 
 io.on("connection",async(socket)=>{
 
- console.log("a user connected",socket.id)
+
 
  const userId=socket.handshake.query.userId;
  
@@ -33,7 +33,7 @@ io.on("connection",async(socket)=>{
  io.emit("getOnlineUsers",Object.keys(usersocketMap))
 
  socket.on("disconnect",()=>{
-    console.log("a user disconnected",socket.id)
+
     delete(usersocketMap[userId])
      io.emit("getOnlineUsers",Object.keys(usersocketMap))
  })

@@ -11,9 +11,11 @@ const dmRouter=require("../routes/dm.route")
 const {app,io,server}=require("../utils/socket")
 
 const cookieParser=require("cookie-parser")
+const globalHandler = require("../middlewares/error")
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use(cookieParser())
+app.use(globalHandler)
 app.use(cors({
 origin:"http://localhost:5173",
 credentials:true

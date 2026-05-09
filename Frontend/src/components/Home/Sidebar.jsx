@@ -3,7 +3,7 @@ import { ScrollArea } from '../ui/scroll-area'
 import { Separator } from '../ui/separator'
 import { Avatar, AvatarImage, AvatarFallback, AvatarBadge } from '../ui/avatar'
 import { useAuthStore } from '@/stores/useAuthStore'
-import { ChevronUp, CircleAlert, Loader2, LogOut, Plus, User, X } from 'lucide-react'
+import { ChevronUp, CircleAlert, Loader2, LogOut, Plus, User,Search,X } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
@@ -21,6 +21,7 @@ import ShinyText from '../reactbits/ShinyText'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '../ui/hover-card'
 import ClickSpark from '../reactbits/ClickSpark'
 import {UsersSkeleton,Sideskeleton}from "./Skeletons"
+import { useState } from 'react'
 
 
 const Sidebar = () => {
@@ -33,15 +34,22 @@ const Sidebar = () => {
         } = useForm({
             resolver: zodResolver(channelSchema)
         })
-    const { user , onlineusers ,logout} = useAuthStore();
+    const { user , onlineUsers ,logout} = useAuthStore();
     const { channels, createChannel,getChannels ,setSelectedChannel,selectedChannel,joinChannel,unreadchannels,clearUnread,isLoadingChannels} = useChannelStore();
     const {selectedUser,setSelectedUser,unreaddms,clearUnreaddms}=useMessageStore();
     const {getUsers,users,isLoadingUsers}=useUserStore();
 
+    const[searchQuery,setSearchQuery]=useState("")
+
+    const filteredChannels=channels.filter(
+        (c)=>c.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    const filteredusers=users.filter(
+        (u)=>u.username.toLowerCase().includes(searchQuery.toLowerCase()))
+
     useEffect(()=>{
         getChannels()
         getUsers()
-    },[getChannels,getUsers])
+    },[])
     return (
         <div className='h-full w-full md:w-72 border-r border-white flex flex-col '>
             <div className='border-b-3 border-base-300 p-4 flex items-center gap-3'>
@@ -59,6 +67,16 @@ const Sidebar = () => {
                 pauseOnHover={false}
                 disabled={false}
 />
+            </div>
+            <div className='px-3 py-2 relative'>
+              <Search className='w-4 h-4 absolute left-6 top-1/2 -translate-y-1/2 text-base-content/30'/>
+              <Input 
+              placeholder='search for a channel or user'
+              value={searchQuery}
+              onChange={(e)=>setSearchQuery(e.target.value)}
+              className="bg-base-300 border-none text-sm placeholder:text-base-content/30 pl-8"
+              />
+              
             </div>
             <div className="flex-1 flex flex-col min-h-0">
              <div>
@@ -118,10 +136,12 @@ const Sidebar = () => {
                     </Dialog>
                 </div>
                 <div className='overflow-y-auto max-h-48 overflow-x-hidden '>
-                    {isLoadingChannels? <Sideskeleton/> : channels.map((channel) => {
-                        const member=channel.members?.some(member=> 
-                        (member._id || member).toString() === user._id.toString())
-                       return (
+                    {isLoadingChannels? <Sideskeleton/> : filteredChannels.map((channel) => {
+                        const member=channel.members?.some((member)=>{
+                           return (member._id || member).toString() === user._id.toString()
+                        } 
+                    )
+                        return (
                         <div key={channel._id} onClick={() =>{
                             if(!member) {
                                 toast.error("you are not a member of this channel,please join to be able to chat")
@@ -142,6 +162,7 @@ const Sidebar = () => {
                             {!member && (
                                 <button className='text-xs px-2 py-1 bg-secondary text-primary-content hover:bg-primary transition-colors rounded-lg' onClick={(e)=>{
                                     e.stopPropagation()
+                                    e.preventDefault()
                                     joinChannel(channel._id)}}>join</button>
                             )}
                         </div>
@@ -153,9 +174,9 @@ const Sidebar = () => {
                     <h3 className='px-3 py-2 font-semibold -tracking-widest text-sm uppercase text-base-content/20'>Available users </h3>
                     <div className='overflow-y-auto flex-1 overflow-x-hidden custom-scroll'>
                     {
-                      isLoadingUsers?<UsersSkeleton/>: users && users.map((u) => 
+                      isLoadingUsers?<UsersSkeleton/>: filteredusers?.map((u) => 
                         {  
-                          const isonline=onlineusers?.includes(u._id)
+                          const isonline=onlineUsers?.includes(u._id)
                           return (
                             <HoverCard key={u._id} >
                                 <HoverCardTrigger>
@@ -184,7 +205,7 @@ const Sidebar = () => {
                                      </div>
                                     </div>
                                 </HoverCardTrigger>
-                                <HoverCardContent side="right" className="w-64 bg-base-200 border-primary-content">
+                                <HoverCardContent side="right" className="hidden md:block w-64 bg-base-200 border-primary-content">
                                   <div className="flex gap-3 items-start">
                                     <Avatar className="w-12 h-12">
                                          <AvatarImage src={u.profileIMG}/>

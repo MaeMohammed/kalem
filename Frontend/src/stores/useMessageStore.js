@@ -15,9 +15,9 @@ export const useMessageStore = create((set,get)=>({
             const res= await axiosInstance.get(`/dm/${userId}/messages`);
             set({messages: res.data.data,isLoadingMessages:false})
         } catch (error) {
-            console.error("Error fetching messages:", error);
-            toast.error("error loading messages")
-             set({isLoadingMessages:false})
+            const message  = error.response?.data?.message || "an error occured while loading messages";
+            toast.error(message)
+            set({isLoadingMessages:false})
         }
     },
     addunreaddm:(userId)=>{
@@ -45,11 +45,11 @@ export const useMessageStore = create((set,get)=>({
             const res= await axiosInstance.post(`/dm/${userId}/messages`, formdata);
             set((state)=>({messages:state.messages.filter((m)=>m._id !== tempImg._id ).concat(res.data.data)}))
         } catch (error) {
-            console.error("Error sending message:", error);
-            toast.error("error sending message")
+            const message  = error.response?.data?.message || "an error occured while sending message";
+            toast.error(message)
         }},
         setSelectedUser:(user)=>{
-            console.log("setting selected user to:", user)
+        
             set({selectedUser: user})
         },
         clearMessages:()=>{
@@ -61,8 +61,7 @@ export const useMessageStore = create((set,get)=>({
             const socket=useAuthStore.getState().socket
 
             socket.on("newMessage",(newMessage)=>{
-               
-                console.log("full message object:", JSON.stringify(newMessage))
+                
 
                 if(newMessage.sender !== selectedUser._id){
                     get().addunreaddm(newMessage.sender)

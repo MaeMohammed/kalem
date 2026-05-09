@@ -5,7 +5,7 @@ import ChatInput from '../chatarea/ChatInput'
 
 const ChatArea = () => {
   return (
-    <div className='flex flex-col flex-1 h-full'>
+    <div className='flex flex-col flex-1 min-h-0 overflow-hidden'>
       <Header/>
       <ChatList/>
       <ChatInput/>
