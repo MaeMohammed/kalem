@@ -17,8 +17,8 @@ app.use(express.urlencoded({extended:true}))
 app.use(cookieParser())
 app.use(globalHandler)
 app.use(cors({
-origin:"http://localhost:5173",
-credentials:true
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    credentials: true
 }))
 
 connectDB()

@@ -76,7 +76,7 @@ export const useAuthStore = create((set,get) => ({
     connectSocket:()=>{
        const {user}=get()
        if(!user || get().socket?.connected) return ; 
-       const socket = io("http://localhost:5001",{
+       const socket = io( import.meta.env.VITE_KALEM_SOCKET_URL || "http://localhost:5001",{
         query:{
             userId:user._id
         }
